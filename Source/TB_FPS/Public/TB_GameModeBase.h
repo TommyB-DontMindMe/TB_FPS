@@ -21,7 +21,7 @@ protected:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
-	AActor* RespawnPoint;
+	FVector RespawnPoint;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Respawn")
 	float RespawnDelay;
 	
