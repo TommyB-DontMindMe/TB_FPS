@@ -12,6 +12,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Character.h"
+#include "Components/ArrowComponent.h"
 #include "MainGUI.h"
 #include "Health.h"
 #include "Math/Rotator.h"
@@ -32,6 +33,7 @@ protected:
 
 	// Variables for Internal use
 	float CameraArmPitch = -30.f;
+	UUserWidget* UIInstance;
 
 public:	
 	// Called every frame
@@ -45,13 +47,20 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerMesh")
 	class USkeletalMeshComponent* Playermesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	class USceneComponent* ThirdPersonFocus;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 	class USpringArmComponent* SpringArm { nullptr };
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-	class UCameraComponent* Camera = nullptr;
+	class UCameraComponent* ThirdPersonCamera = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+	class UCameraComponent* FirstPersonCamera = nullptr;
 
 	// UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "GUI")
 	TSubclassOf<UMainGUI> WidgetComponent;
+	UFUNCTION()
+	UUserWidget* GetUI();
+	void SetUI(UUserWidget* NewUI);
 
 
 
@@ -70,6 +79,7 @@ public:
 	class UInputAction* IA_Zoom;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
 	class UInputAction* IA_Jump;
+
 
 
 	void MoveAction(const FInputActionValue&);

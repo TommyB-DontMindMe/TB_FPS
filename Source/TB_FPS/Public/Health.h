@@ -7,7 +7,8 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/Character.h"
 #include "UObject/Object.h"
-#include "MainGUI.h"
+#include "Kismet/GameplayStatics.h"
+#include "HealthBar.h"
 #include "TimerManager.h"
 #include "Engine/TimerHandle.h"
 #include "Health.generated.h"
@@ -38,8 +39,8 @@ protected:
 	FTimerHandle GraceTimer;
 
 	void GraceComplete();
-
-	UMainGUI* PlayerUI = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	UHealthBar* PlayerUIElement = nullptr;
 
 public:	
 	// Called every frame
@@ -50,5 +51,5 @@ public:
 	UFUNCTION(Category = "Health")
 	void Die();
 
-	void SetUI(UMainGUI* NewUI);
+	void SetUIElement(UHealthBar* NewUIElement);
 };

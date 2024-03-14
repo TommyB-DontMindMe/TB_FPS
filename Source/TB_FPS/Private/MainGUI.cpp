@@ -3,8 +3,15 @@
 
 #include "MainGUI.h"
 
-void UMainGUI::UpdateHealthBar(float CurrentHealth, float MaxHealth)
+
+bool UMainGUI::ConfigureHealthBar()
 {
-	HealthBar->SetPercent(CurrentHealth / MaxHealth);
+	UHealth* PlayerHealthComponent = GetOwningPlayerPawn()->GetComponentByClass<UHealth>();
 	
+	if (PlayerHealthComponent)
+	{
+		PlayerHealthComponent->SetUIElement(HealthBar);
+		return true;
+	}
+	return false;
 }

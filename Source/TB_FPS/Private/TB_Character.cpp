@@ -20,20 +20,38 @@ ATB_Character::ATB_Character()
 		}
 	}
 
+	if (!ThirdPersonFocus)
+	{
+		ThirdPersonFocus = CreateDefaultSubobject<USceneComponent>(TEXT("ThirdPersonFocus"));
+		ThirdPersonFocus->SetupAttachment(GetRootComponent());
 
-	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
-	SpringArm->bDoCollisionTest = false;
-	SpringArm->SetUsingAbsoluteRotation(true);
+		if (!SpringArm)
+		{
+			SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComp"));
+			SpringArm->bDoCollisionTest = false;
+			SpringArm->SetUsingAbsoluteRotation(true);
 
-	SpringArm->SetRelativeRotation(FRotator(-30.f, 0.f, 0.f));
-	SpringArm->TargetArmLength = 50.f;
-	SpringArm->bEnableCameraLag = false;
-	SpringArm->CameraLagSpeed = 5.f;
+			SpringArm->SetRelativeRotation(FRotator(-30.f, 0.f, 0.f));
+			SpringArm->TargetArmLength = 50.f;
+			SpringArm->bEnableCameraLag = false;
+			SpringArm->CameraLagSpeed = 5.f;
+			SpringArm->SetupAttachment(ThirdPersonFocus);
 
-	SpringArm->SetupAttachment(GetRootComponent());
+			if (!ThirdPersonCamera)
+			{
+				ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ThirdPersonCamera"));
+				ThirdPersonCamera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+			}
+		}
+	}
+	if (!FirstPersonCamera)
+	{
+		FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+		FirstPersonCamera->SetupAttachment(GetRootComponent());
 
-	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	Camera->SetupAttachment(SpringArm, USpringArmComponent::SocketName);
+		FirstPersonCamera->bUsePawnControlRotation = true;
+	}
+	
 
 }
 
@@ -44,19 +62,19 @@ void ATB_Character::BeginPlay()
 
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
 	if (PlayerController) {
-		UEnhancedInputLocalPlayerSubsystem* subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-		if (subsystem) {
-			subsystem->AddMappingContext(IMC_GenericInputContext, 0);
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem) {
+			Subsystem->AddMappingContext(IMC_GenericInputContext, 0);
 		}
 		PlayerController->SetViewTarget(this);
 		if (WidgetComponent)
 		{
-			UUserWidget* NewGUI = CreateWidget<UUserWidget>(PlayerController, WidgetComponent);
-			NewGUI->AddToViewport();
-			GetComponentByClass<UHealth>()->SetUI(CastChecked<UMainGUI>(NewGUI));
+			UIInstance = CreateWidget<UUserWidget>(PlayerController, WidgetComponent);
+			UIInstance->AddToViewport();
+			Cast<UMainGUI>(UIInstance)->ConfigureHealthBar();
 		}
 	}
-	Camera->SetActive(false);
+	ThirdPersonCamera->SetActive(false);
 }
 
 
@@ -83,6 +101,19 @@ void ATB_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputCompon
 	}
 }
 
+
+
+UUserWidget* ATB_Character::GetUI()
+{
+	return UIInstance;
+}
+
+void ATB_Character::SetUI(UUserWidget* NewUI)
+{
+	UIInstance = NewUI;
+}
+
+
 void ATB_Character::MoveAction(const FInputActionValue& Value)
 {
 	const FVector2D GetValue = Value.Get<FVector2D>();
@@ -93,10 +124,19 @@ void ATB_Character::MoveAction(const FInputActionValue& Value)
 void ATB_Character::RotateCamera(const FInputActionValue& Value)
 {
 	const FVector2D GetValue = Value.Get<FVector2D>();
-	AddControllerYawInput(GetValue.X);
-	AddControllerPitchInput(-GetValue.Y);
-	CameraArmPitch = FMath::Clamp(CameraArmPitch + GetValue.Y / 5,-90.f,0);
-	SpringArm->SetRelativeRotation(FRotator(CameraArmPitch, GetControlRotation().Yaw, 0.f));
+	if (FirstPersonCamera->IsActive())
+	{
+		AddControllerYawInput(GetValue.X);
+		AddControllerPitchInput(-GetValue.Y);
+	}
+	else
+	{
+		AddControllerYawInput(GetValue.X);
+		AddControllerPitchInput(GetValue.Y);
+		CameraArmPitch = FMath::Clamp(CameraArmPitch + GetValue.Y / 5, -90.f, 0);
+		SpringArm->SetRelativeRotation(FRotator(CameraArmPitch, GetControlRotation().Yaw, 0.f));
+	}
+	
 	
 }
 
@@ -107,13 +147,15 @@ void ATB_Character::ZoomUnzoom(const FInputActionValue& Value)
 	// Switch between First person and Third person camera
 	if (SpringArm->TargetArmLength > 50)
 	{
-		// Switch to Camera
-		Camera->SetActive(true);
+		// Switch to third person Camera
+		ThirdPersonCamera->SetActive(true);
+		FirstPersonCamera->SetActive(false);
 	}
 	else
 	{
-		// Switch to default Camera
-		Camera->SetActive(false);
+		// Switch to first person Camera
+		FirstPersonCamera->SetActive(true);
+		ThirdPersonCamera->SetActive(false);
 	}
 }
 

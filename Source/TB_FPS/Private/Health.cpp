@@ -37,15 +37,15 @@ void UHealth::TakeDamage(float HealthDelta)
 	if (!IsGraceState || HealthDelta > 0)
 	{
 		float RemainingHealth = HealthValue + HealthDelta;
-	HealthValue = RemainingHealth < 0 ? 0 : RemainingHealth > MaxHealth? MaxHealth : RemainingHealth;
+		HealthValue = RemainingHealth < 0 ? 0 : RemainingHealth > MaxHealth? MaxHealth : RemainingHealth;
 		if (HealthValue == 0)
 		{
 			UHealth::Die();
 		}
 
-		if (PlayerUI)
+		if (PlayerUIElement)
 		{
-			PlayerUI->UpdateHealthBar(HealthValue, MaxHealth);
+			PlayerUIElement->SetPercent(HealthValue / MaxHealth);
 		}
 
 		IsGraceState = true;
@@ -61,11 +61,20 @@ void UHealth::GraceComplete()
 
 void UHealth::Die()
 {
-	GetOwner()->Destroy();
+	ACharacter* PlayerCharacter = Cast<ACharacter>(GetOwner());
+	if (Cast<APlayerController>(PlayerCharacter->GetController()))
+	{
+		// Handle Player Death
+		
+	}
+	else
+	{
+		GetOwner()->Destroy();
+	}
 }
 
-void UHealth::SetUI(UMainGUI* NewUI)
+void UHealth::SetUIElement(UHealthBar* NewUIElement)
 {
-	PlayerUI = NewUI;
+	PlayerUIElement = NewUIElement;
 }
 

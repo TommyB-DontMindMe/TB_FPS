@@ -18,12 +18,13 @@ void ATB_GameModeBase::BeginPlay()
 
 void ATB_GameModeBase::Respawn(AActor* DeadActor)
 {
-	
 	APlayerController* Player = GetWorld()->GetFirstPlayerController();
+	UUserWidget* InheritedUI = Cast<ATB_Character>(DeadActor)->GetUI();
 
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.Name = TEXT("PlayerReborn");
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 	ATB_Character* PlayerActor = GetWorld()->SpawnActor<ATB_Character>(DefaultPawnClass, RespawnPoint, FRotator().ZeroRotator, SpawnParams);
+	PlayerActor->SetUI(InheritedUI);
 	Player->Possess(PlayerActor);
 }

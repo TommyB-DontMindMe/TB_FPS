@@ -7,6 +7,7 @@
 #include "Blueprint/WidgetTree.h"
 #include "Components/PanelWidget.h"
 #include "Components/ProgressBar.h"
+#include "Health.h"
 #include "MainGUI.generated.h"
 
 /**
@@ -18,11 +19,10 @@ class TB_FPS_API UMainGUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	UFUNCTION()
-	void UpdateHealthBar(float CurrentHealth, float MaxHealth);
+	bool ConfigureHealthBar();
 
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta = (BindWidget))
-	class UProgressBar* HealthBar;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI", meta=(BindWidget))
+	class UHealthBar* HealthBar;
 
 };
