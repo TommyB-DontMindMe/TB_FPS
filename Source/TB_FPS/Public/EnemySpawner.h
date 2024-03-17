@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/BoxComponent.h"
 #include "EnemySpawner.generated.h"
 
 UCLASS()
@@ -18,21 +19,29 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+	UBoxComponent* SpawnArea;
+
 	// Enemy Class
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
 	TSubclassOf<AActor> EnemyType;
 	// Spawn Rate
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
 	float SpawnRate = 15;
-
-	bool HaltSpawn;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
+	int SpawnAmount = 5;
 
 	UFUNCTION()
-	AActor* SpawnEnemy()
+	void SpawnEnemy();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+
 	// Spawned Enemies
-	TArray<AActor> EnemyList;
+	TArray<AActor*> EnemyList;
+
+	FTimerHandle SpawnTimerDelegate;
 
 };

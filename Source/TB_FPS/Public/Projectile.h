@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/ProjectileMovementComponent.h"
+#include "Health.h"
 #include "Projectile.generated.h"
 
 UCLASS()
@@ -29,6 +30,8 @@ public:
 	UProjectileMovementComponent* ProjectileMovementComponent;
 
 	void Fire(const FVector& DirectionOfFire);
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
 protected:
 	// Called when the game starts or when spawned

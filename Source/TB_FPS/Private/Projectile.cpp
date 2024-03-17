@@ -38,10 +38,20 @@ void AProjectile::Fire(const FVector& DirectionOfFire)
     ProjectileMovementComponent->Velocity = DirectionOfFire * ProjectileMovementComponent->InitialSpeed;
 }
 
+void AProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+    if (UHealth* TargetHealth = OtherActor->GetComponentByClass<UHealth>())
+    {
+        TargetHealth->TakeDamage(3);
+    }
+    this->Destroy();
+}
+
 // Called when the game starts or when spawned
 void AProjectile::BeginPlay()
 {
 	Super::BeginPlay();
+    CollisionComponent->OnComponentHit.AddDynamic(this, &AProjectile::OnHit);
     SetLifeSpan(TimeToLive);
 }
 

@@ -9,25 +9,31 @@ AEnemySpawner::AEnemySpawner()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	if (!SpawnArea)
+	{
+		SpawnArea = CreateDefaultSubobject<UBoxComponent>(TEXT("SpawnArea"));
+	}
 }
 
-AActor* AEnemySpawner::SpawnEnemy()
+void AEnemySpawner::SpawnEnemy()
 {
-	AActor* SpawnedEnemy;
-	if (UWorld* World = GetWorld())
+	if (EnemyList.Num() < SpawnAmount)
 	{
-		FActorSpawnParameters SpawnParameters;
-		
-		World->SpawnActor<EnemyType>(EnemyType, this->GetActorTransform(), SpawnParameters);
+		AActor* SpawnedEnemy = nullptr;
+		UWorld* World = GetWorld();
+		if (World && EnemyType)
+		{
+			SpawnedEnemy = World->SpawnActor<AActor>(EnemyType, GetActorLocation(), FRotator::ZeroRotator);
+			EnemyList.Add(SpawnedEnemy);
+		}
 	}
-	return SpawnedEnemy;
 }
 
 // Called when the game starts or when spawned
 void AEnemySpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	GetWorldTimerManager().SetTimer(SpawnTimerDelegate, this, &AEnemySpawner::SpawnEnemy, SpawnRate, true, 10);
 }
 
 // Called every frame
