@@ -20,7 +20,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
-	UBoxComponent* SpawnArea;
+	float SpawnRange = 250;
 
 	// Enemy Class
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn")
